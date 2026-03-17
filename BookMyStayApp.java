@@ -5,64 +5,59 @@ import java.util.*;
  * MAIN CLASS - BookMyStayApp
  * ==========================================================
  *
- * Use Case 7: Add-On Service Selection
+ * Use Case 8: Booking History & Reporting
  *
  * Description:
- * This class demonstrates how optional services can be
- * attached to a confirmed reservation without affecting
- * booking or inventory logic.
+ * This class demonstrates how confirmed bookings are stored
+ * and reported using a history system.
  *
  * @author Parv
- * @version 7.0
+ * @version 8.0
  */
 
-// ---------- ADD-ON SERVICE ----------
-class AddOnService {
-    private String serviceName;
-    private double cost;
+// ---------- RESERVATION ----------
+class Reservation {
+    private String guestName;
+    private String roomType;
 
-    public AddOnService(String serviceName, double cost) {
-        this.serviceName = serviceName;
-        this.cost = cost;
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getGuestName() { return guestName; }
+    public String getRoomType() { return roomType; }
+}
+
+// ---------- BOOKING HISTORY ----------
+class BookingHistory {
+
+    private List<Reservation> confirmedReservations;
+
+    public BookingHistory() {
+        confirmedReservations = new ArrayList<>();
     }
 
-    public double getCost() {
-        return cost;
+    public void addReservation(Reservation reservation) {
+        confirmedReservations.add(reservation);
+    }
+
+    public List<Reservation> getConfirmedReservations() {
+        return confirmedReservations;
     }
 }
 
-// ---------- SERVICE MANAGER ----------
-class AddOnServiceManager {
+// ---------- REPORT SERVICE ----------
+class BookingReportService {
 
-    private Map<String, List<AddOnService>> servicesByReservation;
+    public void generateReport(BookingHistory history) {
 
-    public AddOnServiceManager() {
-        servicesByReservation = new HashMap<>();
-    }
+        System.out.println("========== Booking History Report ==========\n");
 
-    public void addService(String reservationId, AddOnService service) {
-        servicesByReservation
-                .computeIfAbsent(reservationId, k -> new ArrayList<>())
-                .add(service);
-    }
-
-    public double calculateTotalServiceCost(String reservationId) {
-
-        List<AddOnService> services = servicesByReservation.get(reservationId);
-
-        double total = 0;
-
-        if (services != null) {
-            for (AddOnService s : services) {
-                total += s.getCost();
-            }
+        for (Reservation r : history.getConfirmedReservations()) {
+            System.out.println("Guest: " + r.getGuestName()
+                    + ", Room Type: " + r.getRoomType());
         }
-
-        return total;
     }
 }
 
@@ -71,20 +66,18 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("========== Add-On Service Selection ==========\n");
+        System.out.println("========== Booking History and Reporting ==========\n");
 
-        // Example reservation ID (from UC6)
-        String reservationId = "Single-1";
+        BookingHistory history = new BookingHistory();
 
-        AddOnServiceManager manager = new AddOnServiceManager();
+        // Simulating confirmed bookings (from UC6)
+        history.addReservation(new Reservation("Abhi", "Single"));
+        history.addReservation(new Reservation("Subha", "Double"));
+        history.addReservation(new Reservation("Vanmathi", "Suite"));
 
-        // Add services
-        manager.addService(reservationId, new AddOnService("Breakfast", 500));
-        manager.addService(reservationId, new AddOnService("Spa", 1000));
+        BookingReportService reportService = new BookingReportService();
 
-        double totalCost = manager.calculateTotalServiceCost(reservationId);
-
-        System.out.println("Reservation ID: " + reservationId);
-        System.out.println("Total Add-On Cost: " + totalCost);
+        // Generate report
+        reportService.generateReport(history);
     }
 }
